@@ -1,0 +1,21 @@
+flask:
+  replicaCount: 1
+  image:
+    repository: your-flask-image
+    tag: latest
+
+mongo:
+  replicaCount: 1
+  image:
+    repository: mongo
+    tag: latest
+  storage:
+    size: 10Gi
+
+mysql:
+  replicaCount: 1
+  image:
+    repository: mysql
+    tag: 5.7
+  storage:
+    size: 10Gi

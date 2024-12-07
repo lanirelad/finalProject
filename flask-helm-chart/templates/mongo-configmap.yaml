@@ -1,0 +1,14 @@
+# mongo config map
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-config
+data:
+  mongod.conf: |
+    storage:
+      dbPath: /data/db
+      journal:
+        enabled: true
+
+    security:
+      authorization: "disabled"

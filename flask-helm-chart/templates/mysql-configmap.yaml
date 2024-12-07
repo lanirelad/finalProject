@@ -1,0 +1,10 @@
+# mysql config map
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+data:
+  my.cnf: |
+    # This is the configuration file for MySQL
+    [mysqld]
+    transaction-isolation = READ-COMMITTED
