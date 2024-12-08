@@ -73,8 +73,12 @@ pipeline
                     // Get the port on which the Flask app is running
                     def podPort = sh(script: "kubectl get pod $podName -o jsonpath='{.spec.containers[0].ports[0].containerPort}' --kubeconfig $KUBECONFIG", returnStdout: true).trim()
 
-                    // Print the Pod IP and Port
+                    // Construct the full URL with initial route
+                    def fullUrl = "http://${podIP}:${podPort}/viewContacts"
+
+                    // Print the Pod IP and Port and the full url
                     echo "Flask App is running on Pod IP: $podIP and Port: $podPort"
+                    echo "The Flask app is running at: ${fullUrl}"
                 }
             }
         }
