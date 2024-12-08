@@ -1,11 +1,27 @@
+# configMap
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: flask-app-config
 data:
   DB_USAGE: "MONGO"
-  MONGO_URI: "mongodb://mongo-service:27017/"
+  
+  # ======
+  # mySql
   DB_HOST: "mysql-service"
   DB_USER: "root"
   DB_NAME: "webpageusers"
   DB_TABLE: "users"
+
+  # ======
+  # mongo
+  MONGO_URI: "mongodb://mongo-service:27017/"
+  ARCHIVE: "archiveDB"
+  ARCHIVE_COL: "archivedUsers"
+  MANAGER: "webpageusers"
+  MANAGER_COL: "users"
+
+  # ======
+  # mongo Fake
+  FAKE: "fakeDB"
+  FAKE_COL: "fakeCol"
