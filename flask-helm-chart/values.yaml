@@ -1,7 +1,7 @@
 flask:
   replicaCount: 1
   image:
-    repository: your-flask-image
+    repository: lanirelad/contacts-manager
     tag: latest
 
 mongo:
