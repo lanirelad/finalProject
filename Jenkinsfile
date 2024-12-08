@@ -32,7 +32,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                        helm upgrade --install flask-app ./flask-helm-chart --kubeconfig $KUBECONFIG
+                        helm upgrade --install flask-app ./flask-helm-chart --kubeconfig $KUBECONFIG --force
                     """
                 }
             }
