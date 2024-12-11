@@ -23,22 +23,17 @@ pipeline
         {
             steps 
             {
-                withCredentials ([
+                withCredentials([
                     string(credentialsId: 'AWS_ID', variable: 'AWS_ACCESS_KEY_ID'),
                     string(credentialsId: 'AWS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
-                ]) 
-                {
-                    script 
-                    {
-                        // Configure AWS CLI using the Jenkins credentials
-                        sh "aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}"
-                        sh "aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}"
-                        sh "aws configure set region $AWS_REGION"
-
-                        // Generate kubeconfig file for accessing the EKS cluster
+                ]) {
+                    withEnv(["AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}", "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"]) {
                         sh """
-                            aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION --kubeconfig $KUBECONFIG
+                            aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                            aws configure set region $AWS_REGION
                         """
+                        sh "aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION --kubeconfig $KUBECONFIG"
                     }
                 }
             }
