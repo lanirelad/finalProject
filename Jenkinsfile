@@ -51,7 +51,7 @@ pipeline
                 script 
                 {
                     sh """
-                        helm upgrade --install flask-app ./flask-helm-chart --kubeconfig $KUBECONFIG --atomic --cleanup-on-fail --force
+                        helm upgrade --install flask-app ./flask-helm-chart --kubeconfig $KUBECONFIG --atomic --cleanup-on-fail --force --timeout 10m
                     """
                 }
             }
