@@ -51,7 +51,9 @@ pipeline
                 script 
                 {
                     sh """
-                        helm upgrade --install flask-app ./flask-helm-chart --kubeconfig $KUBECONFIG --atomic --cleanup-on-fail --force --timeout 10m
+                        helm uninstall flask-app --kubeconfig $KUBECONFIG || true
+                        kubectl delete configmap flask-app-config --kubeconfig $KUBECONFIG --ignore-not-found
+                        kubectl delete all -l app=flask-app --kubeconfig $KUBECONFIG --ignore-not-found
                     """
                 }
             }
