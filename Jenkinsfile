@@ -60,6 +60,19 @@ pipeline
             {
                 script 
                 {
+                    sh"""
+                        echo minikube service flask-contacts-app-service --url
+                    """
+                }
+            }
+        }
+
+        stage('Get Pod IP and Port') 
+        {
+            steps 
+            {
+                script 
+                {
                     // Get the pod name
                     def podName = sh(script: "kubectl get pods -l app=flask-app -o jsonpath='{.items[0].metadata.name}' --kubeconfig $KUBECONFIG", returnStdout: true).trim()
 
