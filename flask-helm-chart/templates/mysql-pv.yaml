@@ -5,7 +5,7 @@ metadata:
   name: mysql-pv
 spec:
   capacity:
-    storage: 10Gi
+    storage: 3Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
