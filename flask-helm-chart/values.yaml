@@ -10,7 +10,7 @@ mongo:
     repository: mongo
     tag: latest
   storage:
-    size: 10Gi
+    size: 3Gi
 
 mysql:
   replicaCount: 1
@@ -18,4 +18,4 @@ mysql:
     repository: mysql
     tag: 5.7
   storage:
-    size: 10Gi
+    size: 3Gi
