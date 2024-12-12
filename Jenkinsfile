@@ -1,28 +1,21 @@
-pipeline 
-{
+pipeline {
     agent any
 
-    environment 
-    {
+    environment {
         AWS_REGION = 'us-east-1'
         EKS_CLUSTER_NAME = 'flask-eks'
         KUBECONFIG = '/tmp/kubeconfig'
     }
 
-    stages 
-    {
-        stage('Clone Helm Chart') 
-        {
-            steps 
-            {
+    stages {
+        stage('Clone Helm Chart') {
+            steps {
                 git url: 'https://github.com/lanirelad/finalProject.git', branch: 'main'
             }
         }
 
-        stage('Configure AWS CLI and Kubeconfig') 
-        {
-            steps 
-            {
+        stage('Configure AWS CLI and Kubeconfig') {
+            steps {
                 withCredentials([
                     string(credentialsId: 'AWS_ID', variable: 'AWS_ACCESS_KEY_ID'),
                     string(credentialsId: 'AWS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
@@ -39,12 +32,24 @@ pipeline
             }
         }
 
-        stage('Deploy with Helm') 
-        {
-            steps 
-            {
-                script 
-                {
+        stage('Install Prometheus Operator') {
+            steps {
+                script {
+                    sh """
+                        echo "Adding Prometheus Helm repo and updating..."
+                        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+                        helm repo update
+
+                        echo "Installing Prometheus Operator..."
+                        helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace --kubeconfig $KUBECONFIG
+                    """
+                }
+            }
+        }
+
+        stage('Deploy with Helm') {
+            steps {
+                script {
                     sh """
                         # Cleanup existing deployment
                         echo "Uninstalling existing Helm release..."
@@ -66,20 +71,18 @@ pipeline
 
                         # Deploy the application using Helm
                         echo "Deploying the application using Helm..."
-                        helm install flask-app ./flask-helm-chart --values ./flask-helm-chart/values.yaml
+                        helm install flask-app ./flask-helm-chart --values ./flask-helm-chart/values.yaml --kubeconfig $KUBECONFIG
                     """
                 }
             }
         }
 
-        stage('Get Pod IP and Port') 
-        {
-            steps 
-            {
-                script 
-                {
-                    sh"""
-                        echo minikube service flask-contacts-app-service --url
+        stage('Get Pod IP and Port') {
+            steps {
+                script {
+                    sh """
+                        echo "Fetching service URL for flask-contacts-app-service..."
+                        kubectl get service flask-contacts-app-service --kubeconfig $KUBECONFIG
                     """
                 }
             }
