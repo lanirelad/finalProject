@@ -46,8 +46,8 @@ pipeline {
                             helm uninstall prometheus-operator --namespace monitoring --kubeconfig $KUBECONFIG
                         fi
 
-                        echo "Installing Prometheus Operator..."
-                        helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace --kubeconfig $KUBECONFIG
+                        echo "Installing Prometheus..."
+                        helm install prometheus prometheus-community/kube-prometheus-stack --kubeconfig $KUBECONFIG
                     """
                 }
             }
