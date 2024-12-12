@@ -10,6 +10,6 @@ spec:
   type: LoadBalancer
   ports:
     - name: flask-contacts-service
-    - protocol: TCP
+      protocol: TCP
       port: 5056
       targetPort: 5056
