@@ -1,14 +1,14 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: flask-contacts-service-monitor
+  name: flask-service-monitor
   labels:
     release: prometheus  # Ensure this matches your Prometheus instance label
 spec:
   endpoints:
-    - interval: 30s
-      port: flask-contacts-service  # Match the port name in your Service definition
-      scrapeTimeout: 10s
+  - interval: 30s
+    port: flask-contacts-service  # Match the port name in your Service definition
+    scrapeTimeout: 10s
   selector:
     matchLabels:
       app: flask-contacts-service  # Match the labels in your Service
