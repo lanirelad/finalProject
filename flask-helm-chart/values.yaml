@@ -12,6 +12,12 @@ mongo:
   storage:
     size: 3Gi
 
+mongo-express:
+  replicaCount: 1
+  image:
+    repository: mongo-express
+    tag: latest
+
 mysql:
   replicaCount: 1
   image:
