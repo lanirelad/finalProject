@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: flask-app-config
 data:
-  DB_USAGE: "MONGO"
+  DB_USAGE: "SQL"
   
   # ======
   # mySql
