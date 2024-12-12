@@ -71,29 +71,29 @@ pipeline
             }
         }
 
-        stage('Get Pod IP and Port') 
-        {
-            steps 
-            {
-                script 
-                {
-                    // Get the pod name
-                    def podName = sh(script: "kubectl get pods -l app=flask-app -o jsonpath='{.items[0].metadata.name}' --kubeconfig $KUBECONFIG", returnStdout: true).trim()
+        // stage('Get Pod IP and Port') 
+        // {
+        //     steps 
+        //     {
+        //         script 
+        //         {
+        //             // Get the pod name
+        //             def podName = sh(script: "kubectl get pods -l app=flask-app -o jsonpath='{.items[0].metadata.name}' --kubeconfig $KUBECONFIG", returnStdout: true).trim()
 
-                    // Get the pod IP
-                    def podIP = sh(script: "kubectl get pod $podName -o jsonpath='{.status.podIP}' --kubeconfig $KUBECONFIG", returnStdout: true).trim()
+        //             // Get the pod IP
+        //             def podIP = sh(script: "kubectl get pod $podName -o jsonpath='{.status.podIP}' --kubeconfig $KUBECONFIG", returnStdout: true).trim()
 
-                    // Get the port on which the Flask app is running
-                    def podPort = sh(script: "kubectl get pod $podName -o jsonpath='{.spec.containers[0].ports[0].containerPort}' --kubeconfig $KUBECONFIG", returnStdout: true).trim()
+        //             // Get the port on which the Flask app is running
+        //             def podPort = sh(script: "kubectl get pod $podName -o jsonpath='{.spec.containers[0].ports[0].containerPort}' --kubeconfig $KUBECONFIG", returnStdout: true).trim()
 
-                    // Construct the full URL with initial route
-                    def fullUrl = "http://${podIP}:${podPort}/viewContacts"
+        //             // Construct the full URL with initial route
+        //             def fullUrl = "http://${podIP}:${podPort}/viewContacts"
 
-                    // Print the Pod IP and Port and the full url
-                    echo "Flask App is running on Pod IP: $podIP and Port: $podPort"
-                    echo "The Flask app is running at: ${fullUrl}"
-                }
-            }
-        }
+        //             // Print the Pod IP and Port and the full url
+        //             echo "Flask App is running on Pod IP: $podIP and Port: $podPort"
+        //             echo "The Flask app is running at: ${fullUrl}"
+        //         }
+        //     }
+        // }
     }
 }
