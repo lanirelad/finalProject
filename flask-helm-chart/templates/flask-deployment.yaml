@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: flask-contacts-app
-        image: lanirelad/contacts-manager:latest
+        image: lanirelad/contacts-manager:0.9
         ports:
         - containerPort: 5056
         command: ["python"]
