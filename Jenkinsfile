@@ -66,7 +66,7 @@ pipeline
 
                         # Deploy the application using Helm
                         echo "Deploying the application using Helm..."
-                        helm upgrade --install flask-app ./flask-helm-chart --values ./flask-helm-chart/values.yaml
+                        helm install flask-app ./flask-helm-chart --values ./flask-helm-chart/values.yaml
                     """
                 }
             }
