@@ -4,19 +4,19 @@ flask:
     repository: lanirelad/contacts-manager
     tag: latest
 
-mongo:
-  replicaCount: 1
-  image:
-    repository: mongo
-    tag: latest
-  storage:
-    size: 3Gi
+# mongo:
+#   replicaCount: 1
+#   image:
+#     repository: mongo
+#     tag: latest
+#   storage:
+#     size: 3Gi
 
-mongo-express:
-  replicaCount: 1
-  image:
-    repository: mongo-express
-    tag: latest
+# mongo-express:
+#   replicaCount: 1
+#   image:
+#     repository: mongo-express
+#     tag: latest
 
 mysql:
   replicaCount: 1
