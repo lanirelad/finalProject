@@ -7,9 +7,7 @@ metadata:
 spec:
   endpoints:
     - interval: 30s
-      port: 
-        - name: flask-contacts-service  # Match the port name in your Service definition
-
+      port: flask-contacts-service  # Match the port name in your Service definition
       scrapeTimeout: 10s
   selector:
     matchLabels:
