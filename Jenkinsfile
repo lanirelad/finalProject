@@ -40,6 +40,12 @@ pipeline {
                         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
                         helm repo update
 
+                        # Check if the release already exists, and uninstall if necessary
+                        if helm list --namespace monitoring | grep -q prometheus-operator; then
+                            echo "Prometheus operator already installed, uninstalling..."
+                            helm uninstall prometheus-operator --namespace monitoring --kubeconfig $KUBECONFIG
+                        fi
+
                         echo "Installing Prometheus Operator..."
                         helm install prometheus-operator prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace --kubeconfig $KUBECONFIG
                     """
