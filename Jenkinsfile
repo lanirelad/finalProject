@@ -47,11 +47,21 @@ pipeline
                 {
                     sh """
                         # Cleanup existing deployment
-                        helm uninstall flask-app --kubeconfig $KUBECONFIG || true
-                        kubectl delete configmap flask-app-config --kubeconfig $KUBECONFIG --ignore-not-found
-                        kubectl delete all -l app=flask-app --kubeconfig $KUBECONFIG --ignore-not-found
+                        echo "Uninstalling existing Helm release..."
+                        helm uninstall flask-app --kubeconfig $KUBECONFIG || echo "Helm release not found"
+
+                        echo "Deleting ConfigMap..."
+                        kubectl delete configmap flask-app-config --kubeconfig $KUBECONFIG --ignore-not-found || echo "ConfigMap not found"
+
+                        echo "Deleting resources labeled app=flask-app..."
+                        kubectl delete all -l app=flask-app --kubeconfig $KUBECONFIG --ignore-not-found || echo "Resources not found"
                         
+                        # Wait to ensure cleanup is complete
+                        echo "Waiting for cleanup to complete..."
+                        sleep 10
+
                         # Deploy the application using Helm
+                        echo "Deploying the application using Helm..."
                         helm install flask-app ./flask-helm-chart --kubeconfig $KUBECONFIG --values ./flask-helm-chart/values.yaml
                     """
                 }
