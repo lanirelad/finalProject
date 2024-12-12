@@ -1,0 +1,6 @@
+# Update the system's apt package index
+
+---
+- name: Update apt packages
+  apt:
+    update_cache: yes

@@ -1,0 +1,20 @@
+plugins:
+  - antisamy-markup-formatter
+  - cloudbees-folder
+  - credentials-binding
+  - email-ext
+  - git
+  - github-branch-source
+  - gradle
+  - ldap
+  - matrix-auth
+  - nodejs
+  - pam-auth
+  - pipeline-github-lib
+  - pipeline-stage-view
+  - ssh-slaves
+  - timestamper
+  - ws-cleanup
+  - workflow-aggregator
+  - kubernetes
+  - mailer

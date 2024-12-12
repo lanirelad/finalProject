@@ -1,0 +1,32 @@
+# Install kubectl
+
+---
+- name: Download kubectl binary
+  ansible.builtin.get_url:
+    url: "https://dl.k8s.io/release/v1.31.0/bin/linux/amd64/kubectl"
+    dest: /tmp/kubectl
+    mode: '0755'
+
+- name: Validate kubectl binary checksum
+  ansible.builtin.get_url:
+    url: "https://dl.k8s.io/release/v1.31.0/bin/linux/amd64/kubectl.sha256"
+    dest: /tmp/kubectl.sha256
+
+- name: Install kubectl binary
+  ansible.builtin.command:
+    cmd: mv /tmp/kubectl /usr/local/bin/kubectl
+  become: true
+
+- name: Ensure kubectl is executable
+  ansible.builtin.file:
+    path: /usr/local/bin/kubectl
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Verify kubectl installation
+  ansible.builtin.command:
+    cmd: kubectl version --client
+  register: kubectl_version_check
+  failed_when: kubectl_version_check.rc != 0
+  changed_when: False

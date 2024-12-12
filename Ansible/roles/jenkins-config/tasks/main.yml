@@ -1,0 +1,188 @@
+---
+# Tasks for Jenkins Configuration Role
+
+# Retrieve initial admin password
+- name: Retrieve Jenkins initial admin password
+  slurp:
+    src: /var/lib/jenkins/secrets/initialAdminPassword
+  register: initial_password
+
+- name: Decode initial admin password and trim newline
+  set_fact:
+    jenkins_initial_password: "{{ initial_password.content | b64decode | trim }}"
+
+# # Unlock Jenkins
+# - name: Unlock Jenkins
+#   uri:
+#     url: "http://44.203.169.53:8080/j_acegi_security_check"
+#     method: POST
+#     headers:
+#       Content-Type: "application/x-www-form-urlencoded"
+#     body_format: form-urlencoded
+#     body:
+#       j_username: "admin"
+#       j_password: "{{ jenkins_initial_password }}"
+#       from: ""
+#       Submit: "Continue"
+#     status_code: 200
+
+# roles/jenkins-config/tasks/main.yml
+
+- name: Disable Jenkins setup wizard on startup
+  lineinfile:
+    path: /etc/default/jenkins   # Adjust for your system (e.g., /etc/sysconfig/jenkins)
+    regexp: '^JENKINS_ARGS='
+    line: 'JENKINS_ARGS="--webroot=/var/cache/jenkins/war -Djenkins.install.runSetupWizard=false"'
+  notify:
+    - Restart Jenkins
+
+# roles/jenkins-config/handlers/main.yml
+- name: Restart Jenkins
+  service:
+    name: jenkins
+    state: restarted
+    
+# Create admin user via URL encoded data
+- name: URL encode user credentials
+  set_fact:
+    username: "{{ 'user' | urlencode }}"
+    new_password: "{{ 'password' | urlencode }}"
+    fullname: "{{ 'Full Name' | urlencode }}"
+    email: "{{ 'hello@world.com' | urlencode }}"
+
+- name: Get Jenkins CSRF crumb
+  uri:
+    url: "http://44.203.169.53:8080/crumbIssuer/api/json"
+    user: admin
+    password: "{{ jenkins_initial_password }}"
+    method: GET
+    return_content: yes
+  register: csrf_response
+
+- name: Create admin user
+  uri:
+    url: "http://44.203.169.53:8080/setupWizard/createAdminUser"
+    method: POST
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+      Jenkins-Crumb: "{{ csrf_response.json.crumb }}"
+    body:
+      username: "{{ username }}"
+      password1: "{{ new_password }}"
+      password2: "{{ new_password }}"
+      fullname: "{{ fullname }}"
+      email: "{{ email }}"
+      Submit: "Save"
+    status_code: 200
+
+# Restart Jenkins after creating the admin user
+- name: Restart Jenkins after creating admin user
+  service:
+    name: jenkins
+    state: restarted
+
+# Fetch CSRF crumb for further tasks
+- name: Get Jenkins CSRF crumb for further tasks
+  uri:
+    url: "http://44.203.169.53:8080/crumbIssuer/api/json"
+    user: admin
+    password: "{{ new_password }}"
+    method: GET
+    return_content: yes
+  register: csrf_response
+
+# Load plugins from variable file
+- name: Load Jenkins plugins
+  include_vars:
+    file: "roles/jenkins-config/vars/plugins.yml"
+
+# Install plugins
+- name: Install Jenkins plugins
+  uri:
+    url: "http://{{ ansible_host }}:8080/pluginManager/installNecessaryPlugins"
+    method: POST
+    headers:
+      Content-Type: "application/xml"
+      Jenkins-Crumb: "{{ csrf_response.json.crumb }}"
+    user: admin
+    password: "{{ new_password }}"
+    body: |
+      <jenkins>
+        <install plugin="{{ item }}" />
+      </jenkins>
+    status_code: [200, 201]
+  loop: "{{ plugins }}"
+
+# Create AWS credentials
+- name: Create AWS credentials
+  uri:
+    url: "http://44.203.169.53:8080/credentials/store/system/domain/_/createCredentials"
+    method: POST
+    headers:
+      Content-Type: "application/json"
+      Jenkins-Crumb: "{{ csrf_response.json.crumb }}"
+    user: admin
+    password: "{{ new_password }}"
+    body: |
+      {
+        "": "0",
+        "credentials": {
+          "scope": "GLOBAL",
+          "id": "aws_credentials",
+          "secret": "{{ aws_secret_key }}",
+          "description": "AWS Access Key",
+          "$class": "org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl"
+        }
+      }
+    status_code: 200
+
+# Create pipeline job
+- name: Create pipeline job
+  uri:
+    url: "http://44.203.169.53:8080/createItem?name=Final%20Project"
+    method: POST
+    headers:
+      Content-Type: "application/xml"
+      Jenkins-Crumb: "{{ csrf_response.json.crumb }}"
+    user: admin
+    password: "{{ new_password }}"
+    body: |
+      <flow-definition plugin="workflow-job">
+        <description>Pipeline to run Flask app on EKS cluster via Helm</description>
+        <keepDependencies>false</keepDependencies>
+        <properties/>
+        <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps">
+          <scm class="hudson.plugins.git.GitSCM" plugin="git">
+            <configVersion>2</configVersion>
+            <userRemoteConfigs>
+              <hudson.plugins.git.UserRemoteConfig>
+                <url>https://github.com/lanirelad/finalProject.git</url>
+              </hudson.plugins.git.UserRemoteConfig>
+            </userRemoteConfigs>
+            <branches>
+              <hudson.plugins.git.BranchSpec>
+                <name>/main</name>
+              </hudson.plugins.git.BranchSpec>
+            </branches>
+            <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+            <submoduleCfg class="empty-list"/>
+            <extensions/>
+          </scm>
+          <scriptPath>Jenkinsfile</scriptPath>
+          <lightweight>true</lightweight>
+        </definition>
+        <triggers/>
+        <disabled>false</disabled>
+      </flow-definition>
+    status_code: 200
+
+# Trigger pipeline build
+- name: Trigger pipeline build
+  uri:
+    url: "http://44.203.169.53:8080/job/Final%20Project/build"
+    method: POST
+    headers:
+      Jenkins-Crumb: "{{ csrf_response.json.crumb }}"
+    user: admin
+    password: "{{ new_password }}"
+    status_code: 201
