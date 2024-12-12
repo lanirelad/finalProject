@@ -25,3 +25,10 @@ mysql:
     tag: 5.7
   storage:
     size: 3Gi
+
+grafana:
+  enabled: true  # Ensure Grafana is enabled
+  service:
+    type: LoadBalancer  # Expose Grafana as LoadBalancer
+    port: 3000           # External port for Grafana
+    targetPort: 3000   # Grafana's internal port
