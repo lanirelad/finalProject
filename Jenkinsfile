@@ -47,7 +47,7 @@ pipeline {
                         fi
 
                         echo "Installing Prometheus..."
-                        helm install prometheus prometheus-community/kube-prometheus-stack --kubeconfig $KUBECONFIG
+                        helm upgrade --install prometheus prometheus-community/kube-prometheus-stack --kubeconfig $KUBECONFIG
                     """
                 }
             }
