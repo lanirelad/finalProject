@@ -46,9 +46,13 @@ pipeline
                 script 
                 {
                     sh """
+                        # Cleanup existing deployment
                         helm uninstall flask-app --kubeconfig $KUBECONFIG || true
                         kubectl delete configmap flask-app-config --kubeconfig $KUBECONFIG --ignore-not-found
                         kubectl delete all -l app=flask-app --kubeconfig $KUBECONFIG --ignore-not-found
+                        
+                        # Deploy the application using Helm
+                        helm install flask-app ./path-to-your-helm-chart-directory --kubeconfig $KUBECONFIG --values ./path-to-your-values-file.yaml
                     """
                 }
             }
