@@ -1,0 +1,30 @@
+# Install Helm on the Jenkins server
+
+---
+- name: Download Helm binary
+  get_url:
+    url: "https://get.helm.sh/helm-v3.10.3-linux-amd64.tar.gz"
+    dest: "/tmp/helm-v3.10.3-linux-amd64.tar.gz"
+    mode: '0644'
+
+- name: Extract Helm archive
+  unarchive:
+    src: "/tmp/helm-v3.10.3-linux-amd64.tar.gz"
+    dest: "/tmp/"
+    remote_src: yes
+
+- name: Move Helm binary to /usr/local/bin
+  command:
+    cmd: mv /tmp/linux-amd64/helm /usr/local/bin/helm
+    creates: /usr/local/bin/helm
+
+- name: Verify Helm installation
+  command: helm version
+  register: helm_version
+  failed_when: helm_version.rc != 0
+  changed_when: false
+
+- name: Clean up the downloaded Helm tarball
+  file:
+    path: "/tmp/helm-v3.10.3-linux-amd64.tar.gz"
+    state: absent
